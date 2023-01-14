@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+{% load static %}
+<html lang="ru">
+  <head> 
+    {% include 'includes/head.html' %}
+  <title>
+    {% block title %}text by default
+    {% endblock %}
+  </title>
+  </head>
+  <body>
+    {% include 'includes/header.html' %}
+    <main>
+      {% block content %}
+      {% endblock content %}
+    </main>   
+    {% include 'includes/footer.html' %}
+  </body>
+</html>

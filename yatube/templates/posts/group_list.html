@@ -1,0 +1,31 @@
+{% extends 'base.html' %}
+{% load static %}
+  <head> 
+    {% include 'includes/head.html' %}
+    <title>Записи сообщества {{ group }}</title>
+  </head>
+  {% block content %}
+      <div class="container py-5">
+        <h1>{{ group.title }}</h1>
+        <h2>{{ group.description|linebreaks }}</h2>
+        <article>
+          {% for post in page_obj %}
+            {% include 'includes/pub.html' %}
+            {% if post.group %}
+              <a href="{% url 'posts:group_list' group.slug %}">
+                все записи группы
+              </a>
+            {% endif %}   
+          {% if not forloop.last %}<hr>{% endif %}
+          {% endfor %}
+        </article>
+        {% include 'posts/includes/paginator.html' %}
+      </div>
+  {% endblock content %}
+    </main>
+    <footer class="page-footer font-small blue border-top">
+      <div class="footer-copyright text-center py-3">© {{ year }} Copyright
+        <p><span style="color:red">Ya</span>tube</p> 
+      </div>    
+    </footer>
+  </body>
