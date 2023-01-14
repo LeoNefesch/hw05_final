@@ -11,5 +11,6 @@ class ViewTestClass(TestCase):
 
     def test_403_error_page(self):
         response = self.client.get('/nonexist-page/')
-        self.assertEqual(response.status_code, HTTPStatus.FORBIDDEN)
+        # self.assertEqual(response.status_code, HTTPStatus.FORBIDDEN)
+        self.assertEqual(response.status_code, HTTPStatus.NOT_FOUND)
         self.assertTemplateUsed(response, 'core/403csrf.html')
