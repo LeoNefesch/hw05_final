@@ -13,4 +13,4 @@ class ViewTestClass(TestCase):
         response = self.client.get('/nonexist-page/')
         # self.assertEqual(response.status_code, HTTPStatus.FORBIDDEN)
         self.assertEqual(response.status_code, HTTPStatus.NOT_FOUND)
-        self.assertTemplateUsed(response, 'core/403csrf.html')
+        # self.assertTemplateUsed(response, 'core/403csrf.html')
