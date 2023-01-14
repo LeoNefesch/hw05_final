@@ -77,9 +77,6 @@ class Comment(models.Model):
         default_related_name = 'comments'
         ordering = ['-created']
 
-    # def __str__(self):
-    #     return self.text[:POST_LENGTH]
-
 
 class Follow(models.Model):
     user = models.ForeignKey(

@@ -3,7 +3,6 @@ from http import HTTPStatus
 from django.contrib.auth import get_user_model
 from django.core.cache import cache
 from django.test import Client, TestCase
-from django.urls import reverse
 
 from ..models import Group, Post
 
@@ -30,8 +29,7 @@ class PostURLTests(TestCase):
         self.guest_client = Client()
         self.authorized_client = Client()
         self.authorized_client.force_login(self.user)
-        # self.index_url = '/'
-        self.index_url = reverse('posts:index')
+        self.index_url = '/'
         self.group_list_url = '/group/test-slug/'
         self.profile_url = f'/profile/{self.user.username}/'
         self.post_detail_url = f'/posts/{self.post.id}/'
