@@ -1,5 +1,6 @@
 from django.contrib.auth import get_user_model
 from django.db import models
+from django.db.models.constraints import UniqueConstraint
 
 User = get_user_model()
 
@@ -66,7 +67,7 @@ class Comment(models.Model):
     )
     text = models.TextField(
         verbose_name='Текст поста',
-        help_text='Введите текст поста'
+        help_text='Введите текст комментария'
     )
     created = models.DateTimeField(
         verbose_name='Дата публикации',
@@ -76,6 +77,9 @@ class Comment(models.Model):
     class Meta:
         default_related_name = 'comments'
         ordering = ['-created']
+
+    def __str__(self):
+        return self.text[:POST_LENGTH]
 
 
 class Follow(models.Model):
@@ -91,3 +95,11 @@ class Follow(models.Model):
         verbose_name='Автор',
         related_name='following'
     )
+
+    class Meta:
+        constraints = [
+            UniqueConstraint(
+                fields=['user', 'author'],
+                name='unique_subscription',
+            )
+        ]

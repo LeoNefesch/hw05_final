@@ -25,11 +25,6 @@ class ViewsTests(TestCase):
             author=cls.user,
             group=cls.group,
         )
-        # cls.comment_post = Comment.objects.create(
-        #     author=cls.user,
-        #     text='Тестовый коммент',
-        #     post=cls.post
-        # )
 
     def setUp(self):
         self.guest_client = Client()
@@ -41,7 +36,6 @@ class ViewsTests(TestCase):
         """URL-адрес использует соответствующий шаблон."""
         templates_pages_names = {
             reverse('posts:index'): 'posts/index.html',
-            # '/': 'posts/index.html',
             (reverse('posts:group_list', args=('test-slug',))):
                 'posts/group_list.html',
             '/group/test-slug/': 'posts/group_list.html',
@@ -152,9 +146,8 @@ class ViewsTests(TestCase):
                 form_field = response.context.get('page_obj')
                 self.assertNotIn(expected, form_field)
 
-    def test_comment_correct_context(self):
-        """Валидная форма Комментария создает запись в Post."""
-        # comments_count = Comment.objects.count()
+    def test_add_comment_to_post(self):
+        """Проверка добавления комментария к посту"""
         form_data = {"text": "Тестовый коммент"}
         response = self.authorized_client.post(
             reverse("posts:add_comment", args=(self.post.id, )),
@@ -171,17 +164,16 @@ class ViewsTests(TestCase):
     def test_check_cache(self):
         """Проверка кеша."""
         response = self.guest_client.get(reverse("posts:index"))
-        r_1 = response.content
+        response_content_1 = response.content
         Post.objects.get(id=1).delete()
         response2 = self.guest_client.get(reverse("posts:index"))
-        r_2 = response2.content
-        self.assertEqual(r_1, r_2)
+        response_content_2 = response2.content
+        self.assertEqual(response_content_1, response_content_2)
 
     def test_follow_page(self):
         """Проверка подписки/отписки и страницу избранных постов """
         # Проверяем, что страница подписок пуста
         response = self.authorized_client.get(reverse("posts:follow_index"))
-        # self.assertEqual(len(response.context["posts"]), 0)
         self.assertEqual(len(response.context['page_obj']), 0)
 
         # Проверка подписки на автора поста

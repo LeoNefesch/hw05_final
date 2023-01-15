@@ -67,15 +67,6 @@ def post_create(request):
             request,
             'posts/create_post.html',
             {'form': form, },
-            # AssertionError: Проверьте, что на странице `/create/` выводите
-            # ошибки при неправильной заполненной формы `form`
-            # E         assert 400 == 200
-            # E         -400
-            # E         +200
-            # pytest требует, чтобы у ошибки был status_code 200
-            # HTTP-стандарт требует status_code 400
-            # https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/400
-            # status=HTTPStatus.BAD_REQUEST,
         )
     post = form.save(commit=False)
     post.text = form.cleaned_data['text']
@@ -126,10 +117,8 @@ def follow_index(request):
 @login_required
 def profile_follow(request, username):
     author = get_object_or_404(User, username=username)
-    if author != request.user and not Follow.objects.filter(
-        user=request.user, author=author
-    ).exists():
-        Follow.objects.create(user=request.user, author=author)
+    if author != request.user:
+        Follow.objects.get_or_create(user=request.user, author=author)
     return redirect("posts:follow_index")
 
 

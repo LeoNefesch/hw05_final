@@ -35,6 +35,7 @@ class PostURLTests(TestCase):
         self.post_detail_url = f'/posts/{self.post.id}/'
         self.post_create_url = '/create/'
         self.post_edit_url = f'/posts/{self.post.id}/edit/'
+        # self.follow_url = '/follow/',
         cache.clear()
 
     def test_urls_correct_ctatus_code(self):
@@ -93,6 +94,7 @@ class PostURLTests(TestCase):
             self.post_detail_url: 'posts/post_detail.html',
             self.post_create_url: 'posts/create_post.html',
             self.post_edit_url: 'posts/create_post.html',
+            # self.follow_url: 'posts/follow.html',
         }
         for address, template in templates_url_names.items():
             with self.subTest(address=address):
