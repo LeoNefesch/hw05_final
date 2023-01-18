@@ -8,7 +8,7 @@ from django.core.files.uploadedfile import SimpleUploadedFile
 from django.test import Client, TestCase, override_settings
 from django.urls import reverse
 
-from ..models import Group, Post
+from ..models import Comment, Group, Post
 
 TEMP_MEDIA_ROOT = tempfile.mkdtemp(dir=settings.BASE_DIR)
 User = get_user_model()
@@ -52,7 +52,6 @@ class PostFormTests(TestCase):
     def test_create_post(self):
         """Валидная форма создает запись в Post."""
         form_data = {
-            # 'title': 'Тестовый заголовок',
             'group': self.group.id,
             'text': 'Тестовый текст',
             'image': self.uploaded,
@@ -66,7 +65,6 @@ class PostFormTests(TestCase):
         post = Post.objects.last()
         self.assertEqual(post.author, self.user)
         self.assertEqual(post.text, form_data['text'])
-        # self.assertEqual(post.image, form_data['image'])
         self.assertEqual(post.image, 'posts/small.gif')
         self.assertEqual(post.group, self.group)
         self.assertEqual(self.group.posts.count(), 1)
@@ -101,3 +99,69 @@ class PostFormTests(TestCase):
         self.assertNotEqual(post.text, new_form_data['text'])
         self.assertNotEqual(post.group.id, new_group.id)
         self.assertEqual(self.group.posts.count(), 1)
+
+
+class CommentFormTests(TestCase):
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+        cls.user = User.objects.create_user(username='testAuthorized')
+        cls.author = User.objects.create_user(username='testAuthor')
+        cls.author_client = Client()
+        cls.author_client.force_login(cls.author)
+        cls.group = Group.objects.create(
+            title='Тестовая группа',
+            slug='test',
+            description='Тестовое описание',
+        )
+
+        cls.post = Post.objects.create(
+            author=cls.author,
+            text='Длинный тестовый пост',
+            group=cls.group
+        )
+
+        cls.post_detail_url = reverse(
+            'posts:post_detail', args=(cls.post.id,)
+        )
+        cls.comment_url = reverse(
+            'posts:add_comment', args=(cls.post.id,)
+        )
+
+    def setUp(self):
+        self.guest_client = Client()
+        self.authorized_client = Client()
+        self.authorized_client.force_login(self.user)
+
+    def test_authorized_client_comments_post(self):
+        """Авторизованный пользователь может комментировать записи"""
+        text = 'Длинный комментарий'
+        comment_response = self.authorized_client.post(
+            self.comment_url,
+            {'text': text},
+            follow=True
+        )
+        comment = Comment.objects.latest('created')
+        self.assertEqual(Comment.objects.count(), 1)
+        self.assertEqual(comment.text, text)
+        self.assertEqual(comment.author, self.user)
+        self.assertEqual(comment.post, self.post)
+        self.assertRedirects(
+            comment_response, self.post_detail_url
+        )
+
+    def test_guest_client_not_allowed_comment_post(self):
+        """Незарегистрированный пользователь не может комментировать записи"""
+        comment_guest_redirect_url = (
+            f'/auth/login/?next=/posts/{self.post.id}/comment/'
+        )
+        text = 'Комментарий гостя'
+        comment_response = self.guest_client.post(
+            self.comment_url,
+            {'text': text},
+            follow=True
+        )
+        self.assertEqual(Comment.objects.count(), 0)
+        self.assertRedirects(
+            comment_response, comment_guest_redirect_url
+        )
