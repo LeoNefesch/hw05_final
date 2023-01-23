@@ -4,6 +4,11 @@
     Автор: {{ post.author.username }}
   </li>
   <li>
+    <a href="{% url 'posts:profile' post.author.username %}">
+      все записи автора {{ post.author.username }}
+    </a>
+  </li>
+  <li>
     Дата публикации: {{ post.pub_date|date:"d E Y" }}
   </li>
 </ul>
